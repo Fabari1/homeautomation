@@ -98,19 +98,20 @@ export const useAppStore =  defineStore('app', ()=>{
 
     }
 
-    const getRetrieveData= async (data) => {
+    const getRetrieveData= async (start, end) => {
         const controller = new AbortController();
         const signal = controller.signal;
         const id= setTimeout(() => controller.abort(), 60000);
-        const URL= '/api/reserve/${start}/${end}';
+        const URL= `/api/reserve/${start}/${end}`;
         try {
             const response = await fetch(URL, {
                 method: 'GET',
                 signal: signal});
                 if (response.ok) {
                     const data = await response.json();
+                    console.log(data);
 
-                    let keys = Object.keys(result);
+                    let keys = Object.keys(data);
                     if (keys.includes('status')) {
                         if(data["status"]=="complete"){
                             return data["data"];

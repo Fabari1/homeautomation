@@ -93,16 +93,22 @@ def retrieve_data(start, end):
     # Retrieve the passcode from the 'code' collection in the database
     start = int(start)
     end = int(end)
+    print(f"start: {start}, end: {end}")
+    print(type(start), type(end))
+
     if request.method == "GET":
         try:
-            # Retrieve all documents from the radar collection between the specified date range
-            result = mongo.retrieveData(start, end)
-            if result:
-                return jsonify({"status": "complete", "data": "complete"})
+            # Calculate the average of the data between the start and end values
+            item = mongo.retrieveData(start, end)
+            data= list(item)
+            print(f"retrieve_average: {data}")
+            if data:
+            # Return the calculated average as a JSON response
+                return jsonify({"status": "complete", "data": data})
         except Exception as e:
             msg = str(e)
-            print(f"reserve Error: {msg}")
-        return jsonify({"status": "failed", "data": 0})
+            print(f"retrieve_average Error: {msg}")
+        return jsonify({"status": "failed", "data": "failed"})
 
 # 5. CREATE ROUTE FOR '/api/avg/<start>/<end>'
 @app.route('/api/avg/<start>/<end>', methods=['GET'])

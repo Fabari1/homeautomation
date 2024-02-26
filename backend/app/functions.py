@@ -115,7 +115,7 @@ class DB:
         try:
             # Retrieve all documents from the radar collection between the specified date range
             remotedb = self.remoteMongo('mongodb://%s:%s@%s:%s' % (self.username, self.password,self.server,self.port), tls=self.tls)
-            result = remotedb.ELET2415.radar.find({'timestamp': {'$gte': start, '$lte': end}})
+            result = remotedb.ELET2415.radar.find({'timestamp': {'$gte': start, '$lte': end}, 'reserve': {'$exists': True}}, {'_id': False, 'timestamp': True, 'reserve': True, 'waterheight': True})
         except Exception as e:
             msg = str(e)
             print("retrieveData Error: ", msg)

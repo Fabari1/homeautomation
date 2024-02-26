@@ -28,7 +28,7 @@
             <br />
             <v-btn
               class="text-none mb-4"
-              @click="updateCards();"
+              @click="updateCards(); updateLineCharts(); "
               id="analyze"
               color="surface"
               variant="elevated"
@@ -108,6 +108,7 @@
   var start = ref(null);
   var end = ref(null);
   var avg= reactive({ value: 0 });
+  let waterheight =[];
   // FUNCTIONS
   
   const CreateCharts = async () => {
@@ -121,7 +122,7 @@
           text: "Water Reserve",
           style: { color: "#000000" },
         },
-        labels: { format: "{value} °C" },
+        labels: { format: "{value} Gal" },
       },
   
       tooltip: {
@@ -152,7 +153,7 @@
           text: "Height",
           style: { color: "#000000" },
         },
-        labels: { format: "{value} %" },
+        labels: { format: "{value} inches" },
       },
   
       tooltip: {
@@ -165,7 +166,7 @@
       tooltip: { shared: true },
       series: [
         {
-          name: "Humidity",
+          name: "Water Height",
           type: "scatter",
           data: [],
           turboThreshold: 0,
@@ -200,32 +201,30 @@
       let startDate = new Date(start.value).getTime() / 1000;
       let endDate = new Date(end.value).getTime() / 1000;
       // Fetch data from backend
-      const data = await AppStore.getAllInRange(startDate, endDate);
+      const data = await AppStore.getRetrieveData(startDate, endDate);
       // Create arrays for each plot
-      let temperature = [];
-      let heatindex = [];
-      let humidity = [];
+      let reserve = [];
+
    
       // Iterate through data variable and transform object to format recognized by highcharts
      
       data.forEach((row) => {
-        temperature.push({
+        reserve.push({
           x: row.timestamp * 1000,
-          y: parseFloat(row.temperature.toFixed(2)),
+          y: parseFloat(row.reserve.toFixed(2)),
         });
-        heatindex.push({
+        waterheight.push({
           x: row.timestamp * 1000,
-          y: parseFloat(row.heatindex.toFixed(2)),
+          y: parseFloat(row.waterheight.toFixed(2)),
         });
-        humidity.push({
-          x: row.timestamp * 1000,
-          y: parseFloat(row.humidity.toFixed(2)),
-        });
+        
       });
+      console.log(reserve);
+      console.log(waterheight);
       // Add data to Temperature and Heat Index chart
-      tempHiLine.value.series[0].setData(temperature);
-      tempHiLine.value.series[1].setData(heatindex);
-      humLine.value.series[0].setData(humidity);
+      waterMngAnal.value.series[0].setData(reserve);
+      heightWaterLvl.value.series[0].setData(waterheight);
+
     }
   };
   
@@ -244,63 +243,34 @@
     }
   };
   
-  const updateHistogramCharts = async () => {
-    // Retrieve Min, Max, Avg, Spread/Range for Column graph
-    let startDate = new Date(start.value).getTime() / 1000;
-    let endDate = new Date(end.value).getTime() / 1000;
-    if (!!start.value && !!end.value) {
-      const temp = await AppStore.getFreqDistro( "temperature", startDate, endDate );
-      const humid = await AppStore.getFreqDistro("humidity", startDate, endDate);
-      const hi = await AppStore.getFreqDistro("heatindex", startDate, endDate);
-      // 3. create an empty array for each variable (temperature, humidity and heatindex)
-      // see example below
-    
-      let temperature = [];
-      let humidity = [];
-      let heatindex = [];
-      temp.forEach((row) => {
-        temperature.push({ x: row["_id"], y: row["count"] });
-      });
-      humid.forEach((row) => {
-        humidity.push({ x: row["_id"], y: row["count"] });
-      });
-      hi.forEach((row) => {
-        heatindex.push({ x: row["_id"], y: row["count"] });
-      });
-      
-      histo.value.series[0].setData(temperature);
-      histo.value.series[1].setData(humidity);
-      histo.value.series[2].setData(heatindex);
-    }
-  };
   
   const updateScatter = async () => {
     if (!!start.value && !!end.value) {
-      // Convert output from Textfield components to 10 digit timestamps
-      let startDate = new Date(start.value).getTime() / 1000;
-      let endDate = new Date(end.value).getTime() / 1000;
-      // Fetch data from backend
-      const data = await AppStore.getAllInRange(startDate, endDate);
-      // Create arrays for each plot
-      let scatterPoints1 = [];
-      let scatterPoints2 = [];
-      // Iterate through data variable and transform object to format recognized by highcharts
-      data.forEach((row) => {
-        scatterPoints1.push({
-          x: parseFloat(row.temperature.toFixed(2)),
-          y: parseFloat(row.heatindex.toFixed(2)),
-        });
-      });
+    //   // Convert output from Textfield components to 10 digit timestamps
+    //   let startDate = new Date(start.value).getTime() / 1000;
+    //   let endDate = new Date(end.value).getTime() / 1000;
+    //   // Fetch data from backend
+    //   const data = await AppStore.getAllInRange(startDate, endDate);
+    //   // Create arrays for each plot
+    //   let scatterPoints1 = [];
+ 
+    //   // Iterate through data variable and transform object to format recognized by highcharts
+    //   data.forEach((row) => {
+    //     scatterPoints1.push({
+    //       x: parseFloat(row.temperature.toFixed(2)),
+    //       y: parseFloat(row.heatindex.toFixed(2)),
+    //     });
+    //   });
   
-      data.forEach((row) => {
-        scatterPoints2.push({
-          x: parseFloat(row.humidity.toFixed(2)),
-          y: parseFloat(row.heatindex.toFixed(2)),
-        });
-      });
+      // data.forEach((row) => {
+      //   scatterPoints2.push({
+      //     x: parseFloat(row.humidity.toFixed(2)),
+      //     y: parseFloat(row.heatindex.toFixed(2)),
+      //   });
+      // });
       // Add data to Temperature and Heat Index chart
-      tempHiScat.value.series[0].setData(scatterPoints1);
-      humScat.value.series[0].setData(scatterPoints2);
+      console.log(waterheight);
+      heightWaterLvl.value.series[0].setData(waterheight);
     }
   };
   </script>
