@@ -4,6 +4,7 @@
         <v-col cols="2">
           <v-sheet>
             <v-card height="360px" width="150px">
+              
             <v-slider class="slider" readonly thumb-label color="green" v-model="slider1" direction="vertical" label="Height (In)" track-size="50">
               
             </v-slider>
@@ -35,6 +36,19 @@
             subtitle="Capacity Remaining"
             align="center">
             <div id="container2"></div>
+            <v-dialog width="500" v-model="isActive">
+      <template v-slot:default="{ isActive }">
+        <v-card
+          title="Overflow Detected"
+          color="blue"
+          background-color="primary darken-1"
+        >
+         <v-card-actions>
+            <v-spacer></v-spacer>
+          </v-card-actions>
+        </v-card>
+      </template>
+    </v-dialog>
           </v-card>
         </v-sheet>
       </v-col>
@@ -72,34 +86,35 @@
   const port= ref(9002);
   const point= ref(10);
   const shift= ref(false);
+  let isActive = ref(false);
   const waterHeight= computed(()=>{
     if(!!payload.value){
       return '${payload.value.waterheight.toFixed(2)} inches';
     }
-    }
+  }
   );
-
+  
   const reServes= computed(()=>{
     if(!!payload.value){
       return '${payload.value.reserves.toFixed(2)} gallons';
     }
-    }
+  }
   );
-
+  
   const percentage= computed(()=>{
     if(!!payload.value){
       return '${payload.value.percentage.toFixed(2)}';
     }
-    }
+  }
   );
   const reservesChart = ref(null);
   const reservesGauge = ref(null);
   const slider1 = ref(50);
+
   var fm = new FluidMeter();
   // FUNCTIONS
+  
 
-  function data (){
-      return {slider1: 50}}
   
   
   const CreateCharts = async () => {
@@ -128,14 +143,21 @@
       series: [
         {
           name: "Water",
-          type: "column",
-          data: [1],
+          type: "area",
+          data: [],
           turboThreshold: 0,
           color: Highcharts.getOptions().colors[0],
-          pointWidth: 1000,
+          // pointWidth: 1000,
         },
       ],
       plotOptions: {
+        column: {
+        pointPadding: 0,
+        borderWidth: 0,
+        groupPadding: 0,
+
+        shadow: false
+    },
               bar: {
                 horizontal: false,
                 columnWidth: '100%',
@@ -210,11 +232,6 @@
   };
 
 
-  watch(payload, (data) => {
-    fm.setPercentage(data.reserve.toFixed(2));
-    slider1.value = data.waterheight.toFixed(2);
-  });
-  
   onMounted(() => {
     // THIS FUNCTION IS CALLED AFTER THIS COMPONENT HAS BEEN MOUNTED
     Mqtt.connect(); // Connect to Broker located on the backend
@@ -231,24 +248,40 @@
     // THIS FUNCTION IS CALLED RIGHT BEFORE THIS COMPONENT IS UNMOUNTED
     Mqtt.unsubcribeAll();
   });
+
   
   watch(payload, (data) => {
     // THIS FUNCTION IS CALLED WHEN THE VALUE OF THE VARIABLE "payload" CHANGES
-    if (point.value>0) {point.value--;}
-    else{shift.value = true;}
-    const tenMinutesAgo = Date.now() - 10 * 60 * 1000; // Calculate the timestamp for 10 minutes ago
-    reservesChart.value.series[0].setData([], true); // Clear previous data points
     
-    if (data.reserve <= 0) {
-      reservesChart.value.series[0].addPoint({ y: 0, x: data.timestamp * 1000 }, true, shift.values); // Add new data point
-      reservesGauge.value.series[0].addPoint({ y: 0, x: data.timestamp * 1000 }, true, shift.values); // Add new data point
+    if(reservesChart.value.series[0].points.value > 550){ reservesChart.value.series[0].points.value -- ; }
+        else{ shift.value = true; }
+    
+    slider1.value = data.radar
+    
+    if (data.waterheight >= 77) {
+      fm.setPercentage(100);
+     
+      reservesChart.value.series[0].addPoint({ y: parseFloat(data.waterheight.toFixed(2)), x: data.timestamp*1000 }, true, shift.values); // Add new data point
+      reservesGauge.value.series[0].points[0].update(1000); // Add new data point
+    }
+    else if (data.waterheight <= 0) {
+      fm.setPercentage(0);
+      reservesChart.value.series[0].addPoint({ y: 0, x: data.timestamp*1000 }, true, shift.values); // Add new data point
+      reservesGauge.value.series[0].points[0].update(0); // Add new data point
+
     }
     else{
-      reservesChart.value.series[0].addPoint({ y: parseFloat(data.reserve.toFixed(2)), x: data.timestamp * 1000 }, true, shift.values); // Add new data point
-    reservesGauge.value.series[0].points[0].update(parseFloat(data.reserve.toFixed(2)));}
-});
+      fm.setPercentage(data.percentage.toFixed(2));
+      reservesChart.value.series[0].addPoint({ y: parseFloat(data.waterheight.toFixed(2)), x: data.timestamp*1000  }, true, shift.values); // Add new data point
+      reservesGauge.value.series[0].points[0].update(parseFloat(data.reserve.toFixed(2)));}    
 
-      
+      console.log(data.percentage);
+      if (data.percentage > 98 || data.percentage < 2) {
+          isActive.value = true;
+        } else {
+          isActive.value = false;
+        }
+});
   </script>
   
   <style scoped>

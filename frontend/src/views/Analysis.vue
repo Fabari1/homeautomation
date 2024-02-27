@@ -160,7 +160,7 @@
         pointFormat: "Humidity: {point.x} % ",
       },
       xAxis: {
-        type: "scatter",
+        type: "datetime",
         title: { text: "Water Height", style: { color: "#000000" } },
       },
       tooltip: { shared: true },
@@ -237,7 +237,7 @@
       // 2. Fetch data from backend by calling the API functions
       const average = await AppStore.getCalculateAvg(startDate, endDate);
       console.log(average);
-      avg.value = average[0].average.toFixed(1);
+      avg.value = average[0].average.toFixed(1)*10;
       
    
     }

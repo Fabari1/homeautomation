@@ -23,14 +23,14 @@
    
 //**********ENTER IP ADDRESS OF SERVER******************//
 
-#define HOST_IP     ""     // REPLACE WITH IP ADDRESS OF SERVER ( IP ADDRESS OF COMPUTER THE BACKEND IS RUNNING ON) 
+#define HOST_IP     "192.168.0.7"     // REPLACE WITH IP ADDRESS OF SERVER ( IP ADDRESS OF COMPUTER THE BACKEND IS RUNNING ON) 
 #define HOST_PORT   "8080"            // REPLACE WITH SERVER PORT (BACKEND FLASK API PORT)
 #define route       "api/update"      // LEAVE UNCHANGED 
 #define idNumber    "620154701"       // REPLACE WITH YOUR ID NUMBER 
 
 // WIFI CREDENTIALS
-#define SSID        "MonaConnect"      // "REPLACE WITH YOUR WIFI's SSID"   
-#define password    ""  // "REPLACE WITH YOUR WiFi's PASSWORD" 
+#define SSID        "ARRIS-34A2"      // "REPLACE WITH YOUR WIFI's SSID"   
+#define password    "BPM7EW600194"  // "REPLACE WITH YOUR WiFi's PASSWORD" 
 
 #define stay        100
  
@@ -93,7 +93,7 @@ void loop(){
 
            
             waterheight = 94.5 - radarValue;
-            double reserve(waterheight); 
+            
           // PUBLISH to topic every second.
           StaticJsonDocument<290> doc; // Create JSon object
           char message[290]  = {0};
@@ -103,7 +103,7 @@ void loop(){
           doc["type"] = "ultrasonic";
           doc["radar"] = radarValue;
           doc["waterheight"] = waterheight;
-          doc["reserve"] = reserve;
+          doc["reserve"] = reserve(waterheight); 
           doc["percentage"] = percentage(radarValue);
 
           serializeJson(doc, message);  // Seralize / Covert JSon object to JSon string and store in char* array
@@ -182,6 +182,7 @@ double reserve(int height){
 }
 
 int percentage(int radarValue){
+
     return (radarValue / 77.763) * 100;
   }
 
