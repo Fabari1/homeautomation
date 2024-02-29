@@ -237,49 +237,20 @@
       // 2. Fetch data from backend by calling the API functions
       const average = await AppStore.getCalculateAvg(startDate, endDate);
       console.log(average);
-      avg.value = average[0].average.toFixed(1)*10;
+      avg.value = average[0].average.toFixed(0);
       
    
     }
   };
   
-  
-  const updateScatter = async () => {
-    if (!!start.value && !!end.value) {
-    //   // Convert output from Textfield components to 10 digit timestamps
-    //   let startDate = new Date(start.value).getTime() / 1000;
-    //   let endDate = new Date(end.value).getTime() / 1000;
-    //   // Fetch data from backend
-    //   const data = await AppStore.getAllInRange(startDate, endDate);
-    //   // Create arrays for each plot
-    //   let scatterPoints1 = [];
- 
-    //   // Iterate through data variable and transform object to format recognized by highcharts
-    //   data.forEach((row) => {
-    //     scatterPoints1.push({
-    //       x: parseFloat(row.temperature.toFixed(2)),
-    //       y: parseFloat(row.heatindex.toFixed(2)),
-    //     });
-    //   });
-  
-      // data.forEach((row) => {
-      //   scatterPoints2.push({
-      //     x: parseFloat(row.humidity.toFixed(2)),
-      //     y: parseFloat(row.heatindex.toFixed(2)),
-      //   });
-      // });
-      // Add data to Temperature and Heat Index chart
-      console.log(waterheight);
-      heightWaterLvl.value.series[0].setData(waterheight);
-    }
-  };
+
   </script>
   
   <style scoped>
   /** CSS STYLE HERE */
   
   .container {
-    background-color: #f5f5f5;
+    background-color: "surface";
     width: 1200px;
   }
   

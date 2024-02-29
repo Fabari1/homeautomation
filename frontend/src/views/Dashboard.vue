@@ -3,7 +3,7 @@
       <v-row >
         <v-col cols="2">
           <v-sheet>
-            <v-card height="360px" width="150px">
+            <v-card height="360px" width="175px">
               
             <v-slider class="slider" readonly thumb-label color="green" v-model="slider1" direction="vertical" label="Height (In)" track-size="50">
               
@@ -39,9 +39,10 @@
             <v-dialog width="500" v-model="isActive">
       <template v-slot:default="{ isActive }">
         <v-card
-          title="Overflow Detected"
+          title="OVERFLOW DETECTED"
           color="blue"
           background-color="primary darken-1"
+          align="center"
         >
          <v-card-actions>
             <v-spacer></v-spacer>
@@ -253,42 +254,40 @@
   watch(payload, (data) => {
     // THIS FUNCTION IS CALLED WHEN THE VALUE OF THE VARIABLE "payload" CHANGES
     
-    if(reservesChart.value.series[0].points.value > 550){ reservesChart.value.series[0].points.value -- ; }
+    if(reservesChart.value.series[0].points.value >  500 ){ reservesChart.value.series[0].points.value -- ; }
         else{ shift.value = true; }
     
     slider1.value = data.radar
     
     if (data.waterheight >= 77) {
       fm.setPercentage(100);
+      isActive.value = true;
      
-      reservesChart.value.series[0].addPoint({ y: parseFloat(data.waterheight.toFixed(2)), x: data.timestamp*1000 }, true, shift.values); // Add new data point
+      reservesChart.value.series[0].addPoint({ y: parseFloat(data.reserve.toFixed(2)), x: data.timestamp*1000 }, true, shift.values); // Add new data point
       reservesGauge.value.series[0].points[0].update(1000); // Add new data point
     }
     else if (data.waterheight <= 0) {
       fm.setPercentage(0);
       reservesChart.value.series[0].addPoint({ y: 0, x: data.timestamp*1000 }, true, shift.values); // Add new data point
       reservesGauge.value.series[0].points[0].update(0); // Add new data point
+      isActive.value = false;
 
     }
     else{
       fm.setPercentage(data.percentage.toFixed(2));
-      reservesChart.value.series[0].addPoint({ y: parseFloat(data.waterheight.toFixed(2)), x: data.timestamp*1000  }, true, shift.values); // Add new data point
-      reservesGauge.value.series[0].points[0].update(parseFloat(data.reserve.toFixed(2)));}    
+      reservesChart.value.series[0].addPoint({ y: parseFloat(data.reserve.toFixed(2)), x: data.timestamp*1000  }, true, shift.values); // Add new data point
+      reservesGauge.value.series[0].points[0].update(parseFloat(data.reserve.toFixed(2)));
+      isActive.value = false;
+      }  });  
 
-      console.log(data.percentage);
-      if (data.percentage > 98 || data.percentage < 2) {
-          isActive.value = true;
-        } else {
-          isActive.value = false;
-        }
-});
+     
   </script>
   
   <style scoped>
   /** CSS STYLE HERE */
   
   .container {
-    background-color: #f5f5f5;
+    background-color:"surface";
     width: 1200px;
   }
   
